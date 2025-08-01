@@ -7,7 +7,7 @@ const port = 3000
 
 async function main() {
     try {
-        const uri = "mongodb+srv://mongodb:tanvir237@cluster0.ufkobjs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        const uri = "mongodb+srv://mongodb:tanvir237@cluster0.ufkobjs.mongodb.net/advance-note-app?retryWrites=true&w=majority&appName=Cluster0"
         await mongoose.connect(uri);
 
         server = app.listen(port, () => {
