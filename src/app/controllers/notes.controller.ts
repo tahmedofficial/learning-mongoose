@@ -16,7 +16,7 @@ noteRouter.post('/create-post', async (req: Request, res: Response) => {
 })
 
 noteRouter.get("/", async (req: Request, res: Response) => {
-    const note = await Note.find();
+    const note = await Note.find().populate("userId");
     res.send(note);
 })
 
