@@ -1,6 +1,8 @@
 import { model, Schema } from "mongoose";
-import { IAddress, IUser } from "../interfaces/user.interface";
+import { IAddress, IUser, UserInstanceMethods, UserStaticMethods } from "../interfaces/user.interface";
 import validator from "validator";
+import bcrypt from "bcryptjs";
+import Note from "./notes.model";
 
 const adderssSchema = new Schema<IAddress>({
     city: { type: String, required: true },
@@ -10,7 +12,7 @@ const adderssSchema = new Schema<IAddress>({
     _id: false
 })
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<IUser, UserStaticMethods, UserInstanceMethods>({
     firstName: { type: String, required: true, trim: true, minlength: [5, "Must be at least 5"], maxlength: 10 },
     lastName: { type: String, required: true, trim: true },
     email: {
@@ -43,9 +45,29 @@ const userSchema = new Schema<IUser>({
     address: { type: adderssSchema }
 }, {
     versionKey: false,
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
 
 // userSchema.index({ email: 1 }, { unique: true });
+userSchema.method("hashPassword", async function hashPassword(plainPassword: string) {
+    const password = await bcrypt.hash(plainPassword, 10);
+    return password;
+})
 
-export const User = model("User", userSchema)
+userSchema.static("hashPassword", async function hashPassword(plainPassword: string) {
+    const password = await bcrypt.hash(plainPassword, 10);
+    return password;
+})
+
+userSchema.post("findOneAndDelete", async function (doc) {
+    console.log(doc);
+    await Note.deleteMany({ userId: doc._id })
+})
+
+userSchema.virtual("fullName").get(function () {
+    return `${this.firstName} ${this.lastName}`
+})
+
+export const User = model<IUser, UserStaticMethods>("User", userSchema)

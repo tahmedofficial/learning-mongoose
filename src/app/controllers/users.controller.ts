@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import { User } from "../models/user.model";
 import z from "zod";
+import bcrypt from "bcryptjs";
+
 
 const userRouter = express.Router();
 
@@ -15,7 +17,11 @@ const createUserZodSchema = z.object({
 
 
 userRouter.get("/", async (req: Request, res: Response) => {
+    const userEmail = req.query.email;
+    console.log(userEmail, "T");
 
+    const user = await User.find({ email: userEmail })
+    res.send(user);
 })
 
 userRouter.post("/create-user", async (req: Request, res: Response) => {
@@ -25,6 +31,8 @@ userRouter.post("/create-user", async (req: Request, res: Response) => {
         // const body = await createUserZodSchema.parseAsync(userInfo);
         // console.log("Zood body", body);
 
+        const password = await User.hashPassword(userInfo.password);
+        userInfo.password = password;
         const user = await User.insertOne(userInfo);
         res.send(user);
 

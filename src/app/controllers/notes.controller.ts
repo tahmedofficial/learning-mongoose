@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import Note from "../models/notes.model";
 import express from "express";
 
+
 export const noteRouter = express.Router();
 
 noteRouter.post('/create-post', async (req: Request, res: Response) => {
 
     const body = req.body;
+    
     const note = await Note.create(body)
     res.status(201).json({
         success: true,
